@@ -10,7 +10,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const chartHover = ({ active, payload, label }) => {
+interface ChartHoverProps {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+}
+
+const ChartHover: React.FC<ChartHoverProps> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -33,14 +39,31 @@ const chartHover = ({ active, payload, label }) => {
   return null;
 };
 
-function TokenDetails() {
-  const [search, setSearch] = useState("");
-  const [network, setNetwork] = useState("");
-  const [tokenDetails, setTokenDetails] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+interface TokenDetailsProps {
+  baseToken: { name: string; symbol: string };
+  chainId: string;
+  priceUsd: string;
+  volume: { h24: number };
+  liquidity: { usd: number };
+  fdv: number;
+  priceChange: {
+    m5: number;
+    h1: number;
+    h6: number;
+    h24: number;
+  };
+}
+
+const TokenDetails: React.FC = () => {
+  const [search, setSearch] = useState<string>("");
+  const [network, setNetwork] = useState<string>("");
+  const [tokenDetails, setTokenDetails] = useState<TokenDetailsProps | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSearching = useCallback(
-    async (e) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setIsLoading(true);
       setTokenDetails(null);
@@ -59,7 +82,7 @@ function TokenDetails() {
 
         if (response.data.pairs && response.data.pairs.length > 0) {
           const fpair = response.data.pairs.filter(
-            (pair) => pair.chainId === network,
+            (pair: { chainId: string }) => pair.chainId === network,
           );
           if (fpair.length > 0) {
             setTokenDetails(fpair[0]);
@@ -74,10 +97,10 @@ function TokenDetails() {
 
   const change = tokenDetails
     ? [
-        { name: "5m", value: tokenDetails.priceChange?.m5 },
-        { name: "1h", value: tokenDetails.priceChange?.h1 },
-        { name: "6h", value: tokenDetails.priceChange?.h6 },
-        { name: "24h", value: tokenDetails.priceChange?.h24 },
+        { name: "5m", value: tokenDetails.priceChange.m5 },
+        { name: "1h", value: tokenDetails.priceChange.h1 },
+        { name: "6h", value: tokenDetails.priceChange.h6 },
+        { name: "24h", value: tokenDetails.priceChange.h24 },
       ]
     : [];
 
@@ -97,9 +120,9 @@ function TokenDetails() {
         <p>Chain: {tokenDetails.chainId}</p>
         <div>
           <p>Price: ${parseFloat(tokenDetails.priceUsd).toFixed(6)}</p>
-          <p>24h Volume: ${tokenDetails.volume?.h24.toLocaleString()}</p>
-          <p>Liquidity: ${tokenDetails.liquidity?.usd.toLocaleString()}</p>
-          <p>Fully Diluted Valuation: ${tokenDetails.fdv?.toLocaleString()}</p>
+          <p>24h Volume: ${tokenDetails.volume.h24.toLocaleString()}</p>
+          <p>Liquidity: ${tokenDetails.liquidity.usd.toLocaleString()}</p>
+          <p>Fully Diluted Valuation: ${tokenDetails.fdv.toLocaleString()}</p>
         </div>
 
         {/* <h3>Chart</h3> */}
@@ -108,15 +131,15 @@ function TokenDetails() {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis tickFormatter={(value) => `${value}%`} />
-            <Tooltip content={<chartHover />} />
+            <Tooltip content={<ChartHover />} />
             <Line type="monotone" dataKey="value" stroke="#8884d8" />
           </LineChart>
         </ResponsiveContainer>
         <div>
-          <p>5m Change: {tokenDetails.priceChange?.m5?.toFixed(2)}%</p>
-          <p>1h Change: {tokenDetails.priceChange?.h1?.toFixed(2)}%</p>
-          <p>6h Change: {tokenDetails.priceChange?.h6?.toFixed(2)}%</p>
-          <p>24h Change: {tokenDetails.priceChange?.h24?.toFixed(2)}%</p>
+          <p>5m Change: {tokenDetails.priceChange.m5?.toFixed(2)}%</p>
+          <p>1h Change: {tokenDetails.priceChange.h1?.toFixed(2)}%</p>
+          <p>6h Change: {tokenDetails.priceChange.h6?.toFixed(2)}%</p>
+          <p>24h Change: {tokenDetails.priceChange.h24?.toFixed(2)}%</p>
         </div>
       </div>
     );
@@ -170,6 +193,6 @@ function TokenDetails() {
       {!isLoading && !tokenDetails && <p>Enter name/address</p>}
     </div>
   );
-}
+};
 
 export default TokenDetails;
