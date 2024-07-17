@@ -33,8 +33,9 @@ const chartHover = ({ active, payload, label }) => {
   return null;
 };
 
-function tokenDetails() {
+function TokenDetails() {
   const [search, setSearch] = useState("");
+  const [network, setNetwork] = useState("");
   const [tokenDetails, setTokenDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -57,13 +58,18 @@ function tokenDetails() {
         }
 
         if (response.data.pairs && response.data.pairs.length > 0) {
-          setTokenDetails(response.data.pairs[0]);
+          const fpair = response.data.pairs.filter(
+            (pair) => pair.chainId === network,
+          );
+          if (fpair.length > 0) {
+            setTokenDetails(fpair[0]);
+          }
         }
       } finally {
         setIsLoading(false);
       }
     },
-    [search],
+    [search, network],
   );
 
   const change = tokenDetails
@@ -132,12 +138,28 @@ function tokenDetails() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          placeholder="Enter name/address"
           style={{
             padding: "5px",
             marginRight: "5px",
             border: "1px solid gray",
           }}
         />
+        <select
+          value={network}
+          onChange={(e) => setNetwork(e.target.value)}
+          style={{
+            padding: "5px",
+            marginRight: "5px",
+            border: "1px solid gray",
+          }}
+        >
+          <option value=""></option>
+          <option value="solana">Solana</option>
+          <option value="ethereum">Ethereum</option>
+          <option value="bsc">BSC</option>
+          <option value="polygon">Polygon</option>
+        </select>
         <button type="submit" disabled={isLoading} style={{ padding: "5px" }}>
           Search
         </button>
@@ -145,9 +167,9 @@ function tokenDetails() {
 
       {isLoading && <p>Loading...</p>}
       {renderTokenDetails()}
-      {!isLoading && !tokenDetails && <p>address or token ticker</p>}
+      {!isLoading && !tokenDetails && <p>Enter name/address</p>}
     </div>
   );
 }
 
-export default tokenDetails;
+export default TokenDetails;
