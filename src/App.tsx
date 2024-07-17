@@ -102,7 +102,7 @@ function TokenDetails() {
           <p>Fully Diluted Valuation: ${tokenDetails.fdv?.toLocaleString()}</p>
         </div>
 
-        <h3>Chart</h3>
+        {/* <h3>Chart</h3> */}
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={change}>
             <CartesianGrid strokeDasharray="3 3" />
